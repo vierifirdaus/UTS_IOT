@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  # Layanan Backend Flask
+  backend:
+    build:
+      context: ./backend  # Path ke direktori backend Anda
+    container_name: flask-backend
+    ports:
+      - "5000:5000"  # Port backend
+    environment:
+      - MQTT_BROKER=212.85.26.216  # IP VPS tempat MQTT broker berjalan
+      - MQTT_PORT=1883  # Port MQTT
+      - MQTT_USER=your_username  # Sesuaikan dengan username MQTT Anda
+      - MQTT_PASS=your_password  # Sesuaikan dengan password MQTT Anda
+      - MYSQL_HOST=212.85.26.216  # IP VPS tempat MySQL berjalan
+      - MYSQL_PORT=3306  # Port MySQL
+      - MYSQL_USER=your_mysql_user  # Username MySQL
+      - MYSQL_PASSWORD=your_mysql_password  # Password MySQL
+      - MYSQL_DB=image_storage  # Nama database
+    networks:
+      - app-network
+
+  # Layanan Frontend React
+  frontend:
+    build:
+      context: ./frontend  # Path ke direktori frontend Anda
+    container_name: react-frontend
+    ports:
+      - "3000:3000"  # Port frontend
+    depends_on:
+      - backend  # Menunggu backend untuk berjalan
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
