@@ -9,15 +9,16 @@ services:
     ports:
       - "5000:5000"  # Port backend
     environment:
-      - MQTT_BROKER=212.85.26.216  # IP VPS tempat MQTT broker berjalan
-      - MQTT_PORT=1883  # Port MQTT
-      - MQTT_USER=your_username  # Sesuaikan dengan username MQTT Anda
-      - MQTT_PASS=your_password  # Sesuaikan dengan password MQTT Anda
-      - MYSQL_HOST=212.85.26.216  # IP VPS tempat MySQL berjalan
-      - MYSQL_PORT=3306  # Port MySQL
-      - MYSQL_USER=your_mysql_user  # Username MySQL
-      - MYSQL_PASSWORD=your_mysql_password  # Password MySQL
-      - MYSQL_DB=image_storage  # Nama database
+      - MQTT_BROKER=${MQTT_BROKER}  # Menggunakan variabel dari .env
+      - MQTT_PORT=${MQTT_PORT}      # Menggunakan variabel dari .env
+      - MQTT_USER=${MQTT_USER}      # Menggunakan variabel dari .env
+      - MQTT_PASS=${MQTT_PASS}      # Menggunakan variabel dari .env
+      - MYSQL_HOST=${MYSQL_HOST}    # Menggunakan variabel dari .env
+      - MYSQL_PORT=${MYSQL_PORT}    # Menggunakan variabel dari .env
+      - MYSQL_USER=${MYSQL_USER}    # Menggunakan variabel dari .env
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}  # Menggunakan variabel dari .env
+      - MYSQL_DB=${MYSQL_DB}        # Menggunakan variabel dari .env
+      - AES_KEY=${AES_KEY}          # Menggunakan variabel dari .env
     networks:
       - app-network
 

@@ -3,3 +3,4 @@ paho-mqtt
 mysql-connector-python
 pycryptodome
 flask-cors
+python-dotenv
