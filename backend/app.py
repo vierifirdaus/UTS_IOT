@@ -10,7 +10,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/*": {"origins": "http://212.85.26.216:3000"}})
 
 app.add_url_rule('/','home', lambda: "Welcome to the API", methods=['GET'])
 

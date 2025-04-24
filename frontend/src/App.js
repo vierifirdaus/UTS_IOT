@@ -12,7 +12,7 @@ function App() {
   // Fetch images with pagination and sorting
   const fetchImages = async (page, sort, limit) => {
     try {
-      const response = await axios.get('http://localhost:5000/images', {
+      const response = await axios.get('http://212.85.26.216:5000/images', {
         params: {
           page: page,
           sort: sort,
