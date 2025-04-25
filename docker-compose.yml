@@ -19,9 +19,11 @@ services:
       - MYSQL_USER=${MYSQL_USER}    
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}  
       - MYSQL_DB=${MYSQL_DB}        
-      - AES_KEY=${AES_KEY}          
+      - AES_KEY=${AES_KEY}  
+      - URL_FRONTEND=${URL_FRONTEND}        
     networks:
       - app-network
+    restart: always
 
   # Layanan Frontend React
   frontend:
@@ -36,6 +38,7 @@ services:
       - REACT_APP_BACKEND_URL=${URL_BACKEND}  
     networks:
       - app-network
+    restart: always
 
 networks:
   app-network:
