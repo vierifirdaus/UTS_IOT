@@ -5,7 +5,7 @@ import base64
 import json
 from time import sleep
 from io import BytesIO
-
+import datetime
 # API untuk pagination dan sorting gambar
 def get_images():
     try:
@@ -88,6 +88,72 @@ def decrypt_image_api(image_id):
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+def get_information_image(image_id):
+    conn = None
+    cursor = None
+    try:
+        # Validate image_id
+        try:
+            image_id = int(image_id)
+        except (ValueError, TypeError):
+            return jsonify({"error": "Invalid image ID format"}), 400
+        
+        conn = connect_to_mysql()
+        if not conn:
+            return jsonify({"error": "Unable to connect to database"}), 500
+        
+        cursor = conn.cursor(dictionary=True)
+        
+        # Query all available fields from the table
+        cursor.execute("""
+            SELECT 
+                id,
+                image_data,
+                timestamp,
+                latency_db,
+                capture_time,
+                publish_time
+            FROM images 
+            WHERE id = %s
+        """, (image_id,))
+        
+        result = cursor.fetchone()
+        
+        if not result:
+            return jsonify({"error": f"Image with ID {image_id} not found"}), 404
+        
+        # Handle image decryption
+        try:
+            encrypted_data = result['image_data']
+            decrypted_data = decrypt_image(encrypted_data)
+            image_base64 = base64.b64encode(decrypted_data).decode('utf-8')
+        except Exception as e:
+            return jsonify({"error": f"Image processing failed: {str(e)}"}), 500
+        
+        # Format timestamp if needed
+        timestamp = result['timestamp']
+        if isinstance(timestamp, (datetime.datetime, datetime.date)):
+            timestamp = timestamp.isoformat()
+        
+        # Prepare response with all fields
+        response = {
+            'id': result['id'],
+            'image': image_base64,
+            'timestamp': timestamp,
+            'latency_db': float(result['latency_db']) if result['latency_db'] is not None else 0,
+            'capture_time': float(result['capture_time']) if result['capture_time'] is not None else 0,
+            'publish_time': float(result['publish_time']) if result['publish_time'] is not None else 0
+        }
+        
+        return jsonify(response), 200
+        
+    except Exception as e:
+        return jsonify({"error": f"Server error: {str(e)}"}), 500
     finally:
         if cursor:
             cursor.close()

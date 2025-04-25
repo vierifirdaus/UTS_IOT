@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
-from routes import get_images, decrypt_image_api
+from routes import get_images, decrypt_image_api, get_information_image
 from mqtt_handler import on_connect, on_message
 import paho.mqtt.client as mqtt
 
@@ -16,6 +16,7 @@ app.add_url_rule('/','home', lambda: "Welcome to the API", methods=['GET'])
 
 app.add_url_rule('/images', 'get_images', get_images, methods=['GET'])
 app.add_url_rule('/images/decrypt/<int:image_id>', 'decrypt_image_api', decrypt_image_api, methods=['GET'])
+app.add_url_rule('/image/<int:image_id>','get_information_image',get_information_image, methods=['GET'])
 
 def setup_mqtt():
     """Fungsi untuk setup MQTT"""

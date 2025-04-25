@@ -2,6 +2,7 @@ import './App.css';
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; 
 import HomePage from './page/Home';
+import ImagePage from './page/Image';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
 
         <Routes>  
           <Route exact path="/" element={<HomePage />} />  
+          <Route path="/image/:id" element={<ImagePage />} />
         </Routes>
       </div>
     </Router>
