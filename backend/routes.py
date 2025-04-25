@@ -83,7 +83,7 @@ def decrypt_image_api(image_id):
             BytesIO(decrypted_data),
             mimetype='image/jpeg',
             as_attachment=True,
-            download_name=f'decrypted_{image_id}.jpg'
+            download_name=f'image_{image_id}.jpg'
         )
         
     except Exception as e:
