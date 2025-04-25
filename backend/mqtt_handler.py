@@ -11,8 +11,8 @@ load_dotenv()
 
 MQTT_BROKER = os.getenv("MQTT_BROKER")
 MQTT_PORT = int(os.getenv("MQTT_PORT"))
-MQTT_IMAGE_TOPIC = "iot/image"
-MQTT_LATENCY_TOPIC = "iot/latency"
+MQTT_IMAGE_TOPIC = os.getenv("MQTT_IMAGE_TOPIC")
+MQTT_LATENCY_TOPIC = os.getenv("MQTT_LATENCY_TOPIC")
 MQTT_USER = os.getenv("MQTT_USER")
 MQTT_PASS = os.getenv("MQTT_PASS")
 

@@ -13,7 +13,8 @@ services:
       - MQTT_PORT=${MQTT_PORT}      
       - MQTT_USER=${MQTT_USER}      
       - MQTT_PASS=${MQTT_PASS}      
-      - MQTT_TOPIC=${MQTT_TOPIC}    
+      - MQTT_IMAGE_TOPIC=${MQTT_IMAGE_TOPIC}
+      - MQTT_LATENCY_TOPIC=${MQTT_LATENCY_TOPIC}  
       - MYSQL_HOST=${MYSQL_HOST}    
       - MYSQL_PORT=${MYSQL_PORT}    
       - MYSQL_USER=${MYSQL_USER}    
