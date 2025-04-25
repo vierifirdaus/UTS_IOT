@@ -4,6 +4,16 @@ import json
 from encryption import encrypt_image
 from mysql_handler import connect_to_mysql
 import base64
+import os
+from dotenv import load_dotenv
+load_dotenv()
+# Konfigurasi MQTT
+MQTT_BROKER = os.getenv("MQTT_BROKER")
+MQTT_PORT = int(os.getenv("MQTT_PORT"))
+MQTT_TOPIC = os.getenv("MQTT_TOPIC")
+MQTT_USER = os.getenv("MQTT_USER")
+MQTT_PASS = os.getenv("MQTT_PASS")
+
 def on_connect(client, userdata, flags, rc):
     """Callback saat berhasil terhubung ke MQTT"""
     print(f"Connected to MQTT broker with result code {rc}")

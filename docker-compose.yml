@@ -13,6 +13,7 @@ services:
       - MQTT_PORT=${MQTT_PORT}      # Menggunakan variabel dari .env
       - MQTT_USER=${MQTT_USER}      # Menggunakan variabel dari .env
       - MQTT_PASS=${MQTT_PASS}      # Menggunakan variabel dari .env
+      - MQTT_TOPIC=${MQTT_TOPIC}    # Menggunakan variabel dari .env
       - MYSQL_HOST=${MYSQL_HOST}    # Menggunakan variabel dari .env
       - MYSQL_PORT=${MYSQL_PORT}    # Menggunakan variabel dari .env
       - MYSQL_USER=${MYSQL_USER}    # Menggunakan variabel dari .env
