@@ -1,15 +1,22 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include "esp_camera.h"
-#include <Base64.h>  // Library untuk Base64 encoding
+#include <Base64.h> 
 
-const char* ssid = "GNR46.1";  // Ganti dengan SSID WiFi Anda
-const char* password = "gnr_46.1";  // Ganti dengan password WiFi Anda
+const char* ssid = "GNR46.1";  
+const char* password = "gnr_46.1";  
 
-const char* mqtt_server = "212.85.26.216";  // Ganti dengan IP broker MQTT Anda
-const char* mqtt_user = "vierifirdaus";  // Ganti dengan username MQTT Anda
-const char* mqtt_pass = "qwerty";  // Ganti dengan password MQTT Anda
-const char* mqtt_topic = "iot/image";  // Topik tempat gambar dikirim
+const char* mqtt_server = "212.85.26.216";  
+const char* mqtt_user = "vierifirdaus";  
+const char* mqtt_pass = "qwerty";  
+const char* mqtt_topic = "iot/image";  
+
+int range = 100;
+int freq = 10;
+
+int counter = 0;
+int success = 0;
+int failed = 0;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -32,8 +39,8 @@ PubSubClient client(espClient);
 #define HREF_GPIO_NUM     23
 #define PCLK_GPIO_NUM     22
 
-unsigned long previousMillis = 0;   // last time image was sent
-const int timerInterval = 30000;    // time between each MQTT image send
+unsigned long previousMillis = 0;   
+const int timerInterval = 10*1000;    
 
 void setup_wifi() {
   delay(10);
@@ -111,7 +118,8 @@ void setup() {
 
 void loop() {
   unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= timerInterval) {
+  if (currentMillis - previousMillis >= timerInterval && counter < range) {
+    counter++;
     sendPhoto();
     previousMillis = currentMillis;
   }
@@ -131,21 +139,33 @@ void sendPhoto() {
   if (client.connect("ESP32Client", mqtt_user, mqtt_pass)) {
     Serial.println("Connected to MQTT server");
 
-    // Mengonversi gambar ke Base64
     String base64Image = base64::encode(fb->buf, fb->len);
 
-    // Membuat payload untuk MQTT
     String payload = "{\"image\":\"" + base64Image + "\"}";
 
-    // Mengirim gambar ke broker MQTT
     client.publish(mqtt_topic, payload.c_str());
 
     Serial.println("Image sent to MQTT topic.");
 
-    esp_camera_fb_return(fb);  // Kembalikan buffer gambar
+    esp_camera_fb_return(fb);  
+    success++;
   } else {
+    failed++;
     Serial.println("Failed to connect to MQTT broker.");
   }
+  int total = success+failed;
+  if(total > 0) {
 
-  client.loop();  // Membaca pesan dari broker
+    float successRate = (success / float(total)) * 100;
+    Serial.print("Success Rate: ");
+    Serial.print(successRate);
+    Serial.print("%");
+    Serial.print("(");
+    Serial.print(success);
+    Serial.print("/");
+    Serial.print(total);
+    Serial.println(")");
+  }
+
+  client.loop(); 
 }

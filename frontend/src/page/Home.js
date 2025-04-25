@@ -14,7 +14,7 @@ function HomePage() {
 
   const fetchImages = async (page) => {
     try {
-      const response = await axios.get(`${process.env.URL_BACKEND}/images`, {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/images`, {
         params: {
           page: page,
           timestamp: sort,
@@ -43,7 +43,7 @@ function HomePage() {
   };
 
   const handleImageClick = (id) => {
-    window.location.href = `${process.env.URL_BACKEND}/images/decrypt/${id}`;
+    window.location.href = `${process.env.REACT_APP_BACKEND_URL}/images/decrypt/${id}`;
   };
 
   return (
