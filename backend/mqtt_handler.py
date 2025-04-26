@@ -38,16 +38,17 @@ def on_message(client, userdata, msg):
         message_id = payload['id']
         
         if msg.topic == MQTT_IMAGE_TOPIC:
-            if 'image' not in payload:
-                print(f"Missing 'image' field for ID: {message_id}")
+            if 'image' not in payload or 'timestamp' not in payload:
+                print(f"Missing required fields for ID: {message_id}")
                 return
                 
             pending_data[message_id] = {
                 'image': payload['image'],
+                'timestamp': payload['timestamp'],  # Menyimpan timestamp
                 'receive_time': time.time(),
                 'has_image': True
             }
-            print(f"Received image for ID: {message_id}")
+            print(f"Received image for ID: {message_id} at {payload['timestamp']}")
             
         elif msg.topic == MQTT_LATENCY_TOPIC:
             if message_id not in pending_data or not pending_data[message_id]['has_image']:
@@ -69,16 +70,17 @@ def on_message(client, userdata, msg):
                 
             capture_time = payload.get('capture_time', 0)  
             publish_time = payload.get('publish_time', 0)
+            timestamp = image_data['timestamp']  # Ambil timestamp dari data yang disimpan
             
             try:
                 with connect_to_mysql() as conn:
                     with conn.cursor() as cursor:
-                        # Fixed SQL query (4 placeholders for 4 values)
+                        # SQL query yang diperbarui dengan kolom timestamp
                         cursor.execute(
                             """INSERT INTO images 
-                            (id, image_data, capture_time, publish_time) 
-                            VALUES (%s, %s, %s, %s)""",  # Removed one %s
-                            (message_id, encrypted_image, capture_time, publish_time)
+                            (id, image_data, timestamp, capture_time, publish_time) 
+                            VALUES (%s, %s, %s, %s, %s)""",
+                            (message_id, encrypted_image, timestamp, capture_time, publish_time)
                         )
                         conn.commit()
                         
@@ -89,7 +91,7 @@ def on_message(client, userdata, msg):
                         )
                         conn.commit()
                 
-                print(f"Saved ID:{message_id} | Capture:{capture_time}ms | Publish:{publish_time}ms | DB:{db_latency:.2f}ms")
+                print(f"Saved ID:{message_id} | Timestamp:{timestamp} | Capture:{capture_time}ms | Publish:{publish_time}ms | DB:{db_latency:.2f}ms")
                 
             except Exception as db_error:
                 print(f"Database error for ID {message_id}: {str(db_error)}")

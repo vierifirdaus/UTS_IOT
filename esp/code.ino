@@ -2,21 +2,32 @@
 #include <PubSubClient.h>
 #include "esp_camera.h"
 #include <Base64.h> 
+#include "time.h"
 
-const char* ssid = "GNR46.1";  
-const char* password = "gnr_46.1";  
+const char* ssid = "Vieri Firdaus";  
+const char* password = "asdfghjkl";  
 
 const char* mqtt_server = "212.85.26.216";  
 const char* mqtt_user = "vierifirdaus";  
 const char* mqtt_pass = "qwerty";  
-const char* mqtt_topic = "iot/image";  
-
-int range = 100;
+const char* mqtt_topic_image = "iot/image";  
+const char* mqtt_topic_latency = "iot/latency";  
+int range = 10;
 int freq = 10;
 
 int counter = 0;
 int success = 0;
 int failed = 0;
+
+int message_id = 4501;
+
+unsigned long start_time, end_time;  
+unsigned long capture_time;
+unsigned long publish_time;
+
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 3600;
+const int   daylightOffset_sec = 3600;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -41,6 +52,17 @@ PubSubClient client(espClient);
 
 unsigned long previousMillis = 0;   
 const int timerInterval = 10*1000;    
+String getFormattedTime() {
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    Serial.println("Failed to obtain time");
+    return "";
+  }
+  
+  char timeString[30];
+  strftime(timeString, sizeof(timeString), "%Y-%m-%d %H:%M:%S", &timeinfo);
+  return String(timeString);
+}
 
 void setup_wifi() {
   delay(10);
@@ -72,6 +94,7 @@ void reconnect() {
 void setup() {
   Serial.begin(115200);
   setup_wifi();
+  configTime(3600, 3600, "pool.ntp.org");
   client.setServer(mqtt_server, 1883);
   
   camera_config_t config;
@@ -122,17 +145,22 @@ void loop() {
     counter++;
     sendPhoto();
     previousMillis = currentMillis;
+
+    message_id++;
   }
 }
 
 void sendPhoto() {
   camera_fb_t * fb = NULL;
+  start_time = millis();
   fb = esp_camera_fb_get();
   if(!fb) {
     Serial.println("Camera capture failed");
     delay(1000);
     ESP.restart();
   }
+  end_time = millis();
+  capture_time = end_time - start_time;
 
   Serial.println("Connecting to MQTT server...");
 
@@ -140,10 +168,21 @@ void sendPhoto() {
     Serial.println("Connected to MQTT server");
 
     String base64Image = base64::encode(fb->buf, fb->len);
+    
+    Serial.println(getFormattedTime());
+    String payloadImage = "{\"id\":" + String(message_id) + 
+                      ",\"image\":\"" + base64Image + "\"" +
+                      ",\"timestamp\":\"" + getFormattedTime() + "\"}";
+    start_time = millis();
+    client.publish(mqtt_topic_image, payloadImage.c_str());
+    end_time = millis();
 
-    String payload = "{\"image\":\"" + base64Image + "\"}";
-
-    client.publish(mqtt_topic, payload.c_str());
+    publish_time = end_time - start_time;
+    
+    String payloadLatency = "{\"id\":" + String(message_id) + 
+                          ",\"capture_time\":" + String(capture_time) + 
+                          ",\"publish_time\":" + String(publish_time) +"}";
+    client.publish(mqtt_topic_latency, payloadLatency.c_str());
 
     Serial.println("Image sent to MQTT topic.");
 
