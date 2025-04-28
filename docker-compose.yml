@@ -1,13 +1,12 @@
 version: '3'
 
 services:
-  # Layanan Backend Flask
   backend:
     build:
-      context: ./backend  # Path ke direktori backend Anda
+      context: ./backend  
     container_name: flask-backend
     ports:
-      - "5000:5000"  # Port backend
+      - "5000:5000"  
     environment:
       - MQTT_BROKER=${MQTT_BROKER}  
       - MQTT_PORT=${MQTT_PORT}      
@@ -26,13 +25,12 @@ services:
       - app-network
     restart: always
 
-  # Layanan Frontend React
   frontend:
     build:
-      context: ./frontend  # Path ke direktori frontend Anda
+      context: ./frontend  
     container_name: react-frontend
     ports:
-      - "3000:3000"  # Port frontend
+      - "3000:3000"  
     depends_on:
       - backend  
     environment:
